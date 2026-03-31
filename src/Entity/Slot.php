@@ -15,67 +15,53 @@ class Slot
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $date = null;
+    private ?\DateTime $startAt = null;
 
     #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTime $time = null;
+    private ?\DateTime $endAt = null;
 
-    #[ORM\Column]
-    private ?int $duration = null;
-
-    #[ORM\Column]
-    private ?bool $is_booked = null;
+    #[ORM\OneToOne(mappedBy: 'slot', targetEntity: Booking::class)]
+    private ?Booking $booking = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getDate(): ?\DateTime
+    public function getStartAt(): ?\DateTime
     {
-        return $this->date;
+        return $this->startAt;
     }
 
-    public function setDate(\DateTime $date): static
+    public function setStartAt(\DateTime $startAt): static
     {
-        $this->date = $date;
+        $this->startAt = $startAt;
 
         return $this;
     }
 
-    public function getTime(): ?\DateTime
+    public function getEndAt(): ?\DateTime
     {
-        return $this->time;
+        return $this->endAt;
     }
 
-    public function setTime(\DateTime $time): static
+    public function setEndAt(\DateTime $endAt): static
     {
-        $this->time = $time;
+        $this->endAt = $endAt;
 
         return $this;
     }
 
-    public function getDuration(): ?int
+    public function getBooking(): ?Booking
     {
-        return $this->duration;
+        return $this->booking;
     }
 
-    public function setDuration(int $duration): static
+    public function setBooking(?Booking $booking): static
     {
-        $this->duration = $duration;
+        $this->booking = $booking;
 
         return $this;
     }
-
-    public function isBooked(): ?bool
-    {
-        return $this->is_booked;
-    }
-
-    public function setIsBooked(bool $is_booked): static
-    {
-        $this->is_booked = $is_booked;
-
-        return $this;
-    }
+    
 }

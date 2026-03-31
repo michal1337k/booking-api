@@ -14,10 +14,12 @@ class Booking
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'bookings')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?Slot $slot = null;
+    #[ORM\OneToOne(inversedBy: 'booking')]
+    #[ORM\JoinColumn(nullable: false, unique: true)]
+    private Slot $slot;
 
     #[ORM\Column(length: 255)]
     private ?string $status = null;
