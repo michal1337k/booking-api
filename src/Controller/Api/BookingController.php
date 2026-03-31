@@ -15,11 +15,12 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class BookingController extends AbstractController
 {
-    
+
     #[Route('/api/bookings', methods: ['POST'])]
     public function create(Request $request, SlotRepository $slotRepo, EntityManagerInterface $em): JsonResponse 
     {
         $data = json_decode($request->getContent(), true);
+        $user = $this->getUser();
 
         $slotId = $data['slot_id'] ?? null;
 
@@ -39,22 +40,21 @@ final class BookingController extends AbstractController
         }
 
         $booking = new Booking();
-        $booking->setUser($this->getUser());
-        $booking->setSlot($slot);
-        $booking->setCreatedAt(new \DateTimeImmutable());
-        $booking->setStatus("confirmed");
+        $booking->setUser($user)
+                ->setSlot($slot)
+                ->setCreatedAt(new \DateTimeImmutable())
+                ->setStatus("booked");
 
         $em->persist($booking);
-
-        try {
-            $em->flush();
-        } catch (\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
-            return new JsonResponse(['error' => 'Slot already booked'], 400);
-        }
+        $em->flush();
 
         return new JsonResponse([
-            'message' => 'Booking created',
-            'booking_id' => $booking->getId()
+            'id' => $booking->getId(),
+            'slot' => [
+                'startAt' => $slot->getStartAt()->format('Y-m-d H:i'),
+                'endAt' => $slot->getEndAt()->format('Y-m-d H:i')
+            ],
+            'status' => $booking->getStatus(),
         ], 201);
     }
 
@@ -70,7 +70,7 @@ final class BookingController extends AbstractController
                 'startAt' => $booking->getSlot()->getStartAt()->format('Y-m-d H:i'),
                 'endAt' => $booking->getSlot()->getEndAt()->format('Y-m-d H:i'),
             ],
-            'status' => $booking->getStatus()->value,
+            'status' => $booking->getStatus(),
         ], $user->getBookings()->toArray());
 
         return new JsonResponse($data);
@@ -80,7 +80,9 @@ final class BookingController extends AbstractController
     #[Route('/api/bookings/{id}', methods: ['DELETE'])]
     public function delete(Booking $booking, EntityManagerInterface $em): JsonResponse 
     {
-        if ($booking->getUser() !== $this->getUser()) {
+        $user = $this->getUser();
+
+        if ($booking->getUser() !== $user && !$this->isGranted('ROLE_ADMIN')) {
             return new JsonResponse(['error' => 'Forbidden'], 403);
         }
 
