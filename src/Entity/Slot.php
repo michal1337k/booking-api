@@ -14,10 +14,10 @@ class Slot
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTime $startAt = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTime $endAt = null;
 
     #[ORM\OneToOne(mappedBy: 'slot', targetEntity: Booking::class)]

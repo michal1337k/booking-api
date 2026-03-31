@@ -15,21 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class BookingController extends AbstractController
 {
-    #[Route('/api/slots', methods: ['GET'])]
-    public function slots(SlotRepository $repo): JsonResponse
-    {
-        $slots = $repo->findAll();
-
-        $data = array_map(fn($slot) => [
-            'id' => $slot->getId(),
-            'startAt' => $slot->getStartAt()->format('Y-m-d H:i'),
-            'endAt' => $slot->getEndAt()->format('Y-m-d H:i'),
-            'isBooked' => $slot->getBooking() !== null,
-        ], $slots);
-
-        return new JsonResponse($data);
-    }
-
+    
     #[Route('/api/bookings', methods: ['POST'])]
     public function create(Request $request, SlotRepository $slotRepo, EntityManagerInterface $em): JsonResponse 
     {
